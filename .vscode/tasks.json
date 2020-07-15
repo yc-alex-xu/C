@@ -8,7 +8,7 @@
         "type": "shell",
         "label": "gcc build active file",
         "command": "/usr/bin/gcc",
-        "args": ["-g","-fsanitize=leak", "${file}","-lm","-lpthread", "-o", "bin/${fileBasenameNoExtension}"],
+        "args": ["-g","${file}","-lm","-lpthread", "-o", "bin/${fileBasenameNoExtension}"],
         "options": {
           "cwd": "${workspaceFolder}"
         },

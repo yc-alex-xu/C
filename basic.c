@@ -6,23 +6,25 @@
 #include <stdbool.h>
 #include "toolkit.h"
 
-/* 
-assert macro
-If the macro NDEBUG is defined (above the statement that includes assert.h!),
- the assert macro does absolutely nothing.
-[alex@clang]$gcc -DDEBUG -E test.c  -o a.c     用来传递DEBUG的定义
-[alex@clang]$clang -DDEBUG -E test.c  -o a.c
- */
-void char_space()
+/* compiler 缺省优化，会考虑变量空间的paragrah, 所以即使代码中 char a,b 被 int c 隔开
+   空间分配时还是会优化的
+*/
+void char_space_test()
 {
+  FUNC_HEAD();
   char a;
   int c;
   char b;
-  printf("addres of a is %p, of b is %p \n", &a,&b);
+  printf("&a=%p\n&b=%p\n&c=%p\n", &a, &b,&c);
 }
 
-
 //handle the overlap issue just like libc
+/* 
+assert macro:
+If the macro NDEBUG is defined (above the statement that includes assert.h!), the assert macro does absolutely nothing.
+$gcc -DDEBUG -E test.c  -o a.c     用来传递DEBUG的定义
+$clang -DDEBUG -E test.c  -o a.c
+ */
 char *strcpy_alex(char *restrict strDest, const char *restrict strSrc)
 {
   assert(strDest != NULL && strSrc != NULL && strSrc != strDest);
@@ -65,44 +67,13 @@ restrict是c99标准引入的，它只可以用于限定和约束指针，并表
 是否遵循了这一限制，如果您蔑视它也就是在让自己冒险。
  */
 
-//make sure it func same as strlen() in libc
-int strlen_alex(const char *restrict pStr)
-{
-
-  assert(pStr != NULL);
-  const char *addr = pStr;
-  for (; *pStr; pStr++)
-    ;
-  return pStr - addr;
-}
-
 void str_func_test()
 {
   FUNC_HEAD();
-
-  char_space();
-
   char str[30];
   char *p = &(str[5]);
   strcpy_alex(p, "123456");
   printf("the src=123456 the dest=%s\n", p);
-
-  char *p1 = &(str[20]);
-  strcpy_alex(p1, p);
-  printf("the src=123456 the dest=%s\n", p1);
-
-  strcpy_alex(str, p);
-  printf("the src=123456 the dest=%s\n", str);
-
-  int len = sizeof(str) / sizeof(str[0]);
-  strncpy(str, "123456789012", len - 1);
-  str[len - 1] = '\0';
-  printf("original str=123456789012 after strncpy %s\n", str);
-
-  assert(strlen_alex(str) == strlen(str));
-
-  int (*func)(const char *) = strlen_alex;
-  printf("sizof(func pointer) in 64bit system is :%lu\n", sizeof(func));
 }
 
 int swap_int(int *p, int *q)
@@ -117,162 +88,60 @@ void swap_test()
 {
   FUNC_HEAD();
   int a = 3, b = 4;
+  printf("before swap %d %d\n",a,b);
   swap_int(&a, &b);
+  printf("after  swap %d %d\n",a,b);
 }
 
 void endian_test()
 {
   FUNC_HEAD();
   typedef union {
-    int a;
+    int i;
     char c;
   } word_t;
   word_t w;
-  w.a = 1;
+  w.i = 1;
   if (w.c == '\1')
     printf("little endian\n");
   else
     printf("big endian\n");
 }
 
-enum sizes
-{
-  small = 7,
-  medium,
-  large = 10,
-  humungous
-};
-
-void enmum_test()
-{
-  FUNC_HEAD();
-  printf("the enum are:\n %d %d %d %d\n", small, medium, large, humungous);
-}
-
-void op_test()
-{
-  FUNC_HEAD();
-  int a = 7, b = 5;
-  printf("7/5=%d, 7%%5=%d\n", a / b, a % b);
-  int sz = 10;
-  for (int i = 0; i < sz; i++)
-  {
-    printf("%d %d \n", i, (i + sz - 1) % sz);
-  }
-}
-
-const char *func1() { return "here return a const char * "; }
-void const_return_test()
-{
-  FUNC_HEAD();
-  const char *s1 = func1();
-  printf("%s\n", s1);
-}
-
-char *func2(char *dst)
-{
-  strcpy(dst, "copy the this sentence to in param: char *\n");
-  return dst;
-}
-
-void in_param_test()
-{
-  FUNC_HEAD();
-  /* 
-内存分配函数,与malloc,calloc,realloc类似.alloca是GNU 函数, 在栈(stack)上申请空间,用完马上就释放.
- */
-  char *s2 = malloc(100 * sizeof(char));
-  if (s2 != NULL)
-  {
-    func2(s2);
-    printf("return: %s\n", s2);
-    free(s2); //
-  }
-}
-
+//~ 按位取反运算符
 #define ISUNSIGNED(a) (a >= 0 && ~a >= 0)
 #define ISUNSIGNED_T(type) ((type)0 - 1 > 0)
 void sign_test(void)
 {
   FUNC_HEAD();
   unsigned int ut = 1;
-  printf("%d\n", ISUNSIGNED(ut));
-  printf("%d\n", ISUNSIGNED_T(unsigned int));
+  printf("unsigned? %d\n", ISUNSIGNED(ut));
+  printf("unsigned type ?%d\n", ISUNSIGNED_T(unsigned int));
 
   signed int st = 1;
-  printf("%d\n", ISUNSIGNED(st));
-  printf("%d\n", ISUNSIGNED_T(signed int));
+  printf("unsigned? %d\n", ISUNSIGNED(st));
+  printf("unsigned type? %d\n", ISUNSIGNED_T(signed int));
 }
 
-struct person
-{
-  char *name;
-  char gender;
-  int age;
-  int weight;
-  struct
-  {
-    int area_code;
-    long phone_number;
-  };
-};
-
-struct person2
-{
-  char *name;
-  union {
-    int i;
-    char c;
-  };
-};
-
-void anonymous_union_test(void)
-{
-  FUNC_HEAD();
-  struct person jim = {"jim", 'F', 28, 65, {21, 58545566}};
-  struct person2 wang;
-  wang.name = "wang";
-  wang.c = 'A'; //0x41 A
-  printf("%d\n", jim.area_code);
-  printf("%x\n", wang.i);
-}
-
+//如果不用这小技巧，求平均会overflow
 unsigned int avg(unsigned int a, unsigned int b)
 {
   return (a >> 1) + (b >> 1) + (a & b & 1);
 }
 
-unsigned int avg_overflow(unsigned int a, unsigned int b)
-{
-  return (a + b) / 2;
-}
-
-unsigned int avg_upgrade(unsigned int a, unsigned int b)
-{
-  return ((long)a + (long)b) / 2;
-}
-
 void avg_test(void)
 {
   FUNC_HEAD();
-
   printf("avg return: %ud\n", avg(-1, -1));
-  printf("avg_overflow return: %ud\n", avg_overflow(-1, -1));
-  printf("avg_upgrade return: %ud\n", avg_upgrade(-1, -1));
 }
 
 int main()
 {
-  enmum_test();
-  op_test();
-  const_return_test();
-  in_param_test();
+  char_space_test();
   sign_test();
   str_func_test();
   swap_test();
   endian_test();
-  anonymous_union_test();
   avg_test();
-
   return 0;
 }
