@@ -12,67 +12,39 @@ tested via: gcc -std=c11
     and return will flush the buffer implicitly
 */
 inline void test_stdout_stderr();
-void test_stdout_stderr()
+void stdio_test()
 {
     FUNC_HEAD();
     for (int i = 0; i < 3; i++)
     {
-        fprintf(stdout, "hello-std-out");
-        fprintf(stderr, "hello-std-err");
+        fprintf(stdout, "-out-");
+        fprintf(stderr, "-err-");
     }
 }
 
-/*
-comma expression when init 
-*/
-void test_comma()
-{
-    FUNC_HEAD();
-    //int a = 1, 2; syntax error
-    int a = (1, 2); // 2
-    printf("a : %d\n", a);
-}
-
-void test_rtn_printf()
+void printf_test()
 {
     FUNC_HEAD();
     int i = 43;
     printf("%d\n", printf("%d", printf("%d", i))); //4321
 }
 
-void test_float_printf()
-{
-    FUNC_HEAD();
-    float a = 12.5;
-    printf("%d\n", a);
-    printf("%d\n", (int)a);
-    printf("%d\n", *(int *)&a);
-}
-
 /*
-the expression of sizeof() was decided during compilation
+二进制由 0 和 1 两个数字组成，使用时必须以0b或0B（不区分大小写）开头，
+八进制由 0~7 八个数字组成，使用时必须以0开头（注意是数字 0，不是字母 o
+十六进制由数字 0~9、字母 A~F 或 a~f（不区分大小写）组成，使用时必须以0x或0X（不区分大小写）开头
 */
-void test_sizeof()
-{
-    FUNC_HEAD();
-    int i;
-    i = 10;
-    printf("i : %d\n", i);
-    printf("sizeof(i++) is: %d\n", sizeof(i++));
-    printf("i : %d\n", i);
-}
-
-void test_oct()
+void octal_test()
 {
     FUNC_HEAD();
 #define SIZEOF(arr) (sizeof(arr) / sizeof(arr[0]))
-#define PrintInt(expr) printf("%s:%d\n", #expr, (expr))
+#define PrintInt(expr) printf("%s:%o\n", #expr, (expr))
     /* The powers of 10 */
     int pot[] = {
-        0001,
-        0010,
+        01,
+        010,
         0100,
-        1000}; //以0 打头的都被看成8进制
+        100}; //以0 打头的都被看成8进制
 
     for (int i = 0; i < SIZEOF(pot); i++)
         PrintInt(pot[i]);
@@ -81,7 +53,7 @@ void test_oct()
 /*
 “hello”[2] == 2[“hello”]
 */
-void test_idx_str()
+void substr_test()
 {
     FUNC_HEAD();
     int a = 3, b = 5;
@@ -92,12 +64,9 @@ void test_idx_str()
 
 int main()
 {
-    test_stdout_stderr();
-    test_comma();
-    test_rtn_printf();
-    test_float_printf();
-    test_sizeof();
-    test_oct();
-    test_idx_str();
+    stdio_test();
+    printf_test();
+    octal_test();
+    substr_test();
     return 0;
 }
