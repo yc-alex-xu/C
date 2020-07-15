@@ -6,18 +6,6 @@
 #include <stdbool.h>
 #include "toolkit.h"
 
-/* compiler 缺省优化，会考虑变量空间的paragrah, 所以即使代码中 char a,b 被 int c 隔开
-   空间分配时还是会优化的
-*/
-void char_space_test()
-{
-  FUNC_HEAD();
-  char a;
-  int c;
-  char b;
-  printf("&a=%p\n&b=%p\n&c=%p\n", &a, &b,&c);
-}
-
 //handle the overlap issue just like libc
 /* 
 assert macro:
@@ -88,9 +76,9 @@ void swap_test()
 {
   FUNC_HEAD();
   int a = 3, b = 4;
-  printf("before swap %d %d\n",a,b);
+  printf("before swap %d %d\n", a, b);
   swap_int(&a, &b);
-  printf("after  swap %d %d\n",a,b);
+  printf("after  swap %d %d\n", a, b);
 }
 
 void endian_test()
@@ -137,7 +125,6 @@ void avg_test(void)
 
 int main()
 {
-  char_space_test();
   sign_test();
   str_func_test();
   swap_test();
