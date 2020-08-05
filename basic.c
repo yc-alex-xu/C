@@ -1,17 +1,6 @@
 #include <stdio.h>
 #include "toolkit.h"
 
-/* 
-bad example that  make garbage collection difficult or impossible
-char *s = (char *) malloc(1024);
-s -= 10000;
-restrict是c99标准引入的，它只可以用于限定和约束指针，并表明指针是访问一个数据对象的唯一
-且初始的方式.即它告诉编译器，所有修改该指针所指向内存中内容的操作都必须通过该指针来修改
-关键字restrict有两个读者。一个是编译器，它告诉编译器可以自由地做一些有关优化的假定。
-另一个读者是用户，他告诉用户仅使用满足restrict要求的参数。一般，编译器无法检查您
-是否遵循了这一限制，如果您蔑视它也就是在让自己冒险。
- */
-
 int swap_int(int *p, int *q)
 {
   *p ^= *q;
