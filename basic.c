@@ -1,49 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <assert.h>
-#include <stdbool.h>
 #include "toolkit.h"
 
-//handle the overlap issue just like libc
-/* 
-assert macro:
-If the macro NDEBUG is defined (above the statement that includes assert.h!), the assert macro does absolutely nothing.
-$gcc -DDEBUG -E test.c  -o a.c     用来传递DEBUG的定义
-$clang -DDEBUG -E test.c  -o a.c
- */
-char *strcpy_alex(char *restrict strDest, const char *restrict strSrc)
-{
-  assert(strDest != NULL && strSrc != NULL && strSrc != strDest);
-  char *address = strDest;
-  if (strDest < strSrc)
-  {
-    for (; *strSrc;)
-    {
-      *strDest = *strSrc;
-      strDest++;
-      strSrc++;
-    }
-    *strDest = '\0';
-  }
-  else
-  {
-    for (; *strSrc;)
-    {
-      strDest++;
-      strSrc++;
-    }
-    for (; address <= strDest;)
-    {
-      *strDest = *strSrc;
-      strDest--;
-      strSrc--;
-    }
-  }
-
-  return address;
-}
 /* 
 bad example that  make garbage collection difficult or impossible
 char *s = (char *) malloc(1024);
@@ -54,15 +11,6 @@ restrict是c99标准引入的，它只可以用于限定和约束指针，并表
 另一个读者是用户，他告诉用户仅使用满足restrict要求的参数。一般，编译器无法检查您
 是否遵循了这一限制，如果您蔑视它也就是在让自己冒险。
  */
-
-void str_func_test()
-{
-  FUNC_HEAD();
-  char str[30];
-  char *p = &(str[5]);
-  strcpy_alex(p, "123456");
-  printf("the src=123456 the dest=%s\n", p);
-}
 
 int swap_int(int *p, int *q)
 {
@@ -117,16 +65,21 @@ unsigned int avg(unsigned int a, unsigned int b)
   return (a >> 1) + (b >> 1) + (a & b & 1);
 }
 
+int avg_int(int a, int b)
+{
+  return (a >> 1) + (b >> 1) + (a & b & 1);
+}
+
 void avg_test(void)
 {
   FUNC_HEAD();
-  printf("avg return: %ud\n", avg(-1, -1));
+  unsigned int t = avg(-1, -5);
+  printf("avg return: %ud %d %d\n",t,(int)t,avg_int(3,-3));
 }
 
 int main()
 {
   sign_test();
-  str_func_test();
   swap_test();
   endian_test();
   avg_test();
