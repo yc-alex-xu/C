@@ -2,37 +2,37 @@
 *  clang -std=c11 -lpthread  threads.c 
 *  gcc -std=c11   threads.c -lpthread
 */
-
+/*
+如果compiler 支持ansi c，使用　threads.h　即可
+#if defined(__STDC_NO_THREADS) && __STDC_NO_THREADS__ == 1
+#error "No threading support"
+#else
+#include <threads.h>
+#endif
+*/
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #define NUM_THREADS 5
-void *print_hello(void *threadid)
+void *hello(void *threadid)
 {
   long tid;
   tid = (long)threadid;
-  printf("Hello World! It’s me, thread #%ld!\n", tid);
+  printf("Hello World! thread #%ld!\n", tid);
   sleep(1);
   pthread_exit(NULL);
 }
 
-#if defined(__STDC_NO_THREADS) && __STDC_NO_THREADS__ == 1
-#error "No threading support"
-#else
-//#include <threads.h>
-#endif
 
 int main(int argc, char *argv[])
 {
   pthread_t threads[NUM_THREADS];
   int rc;
-  long t;
-  for (t = 0; t < NUM_THREADS; t++)
+  for (long t = 0; t < NUM_THREADS; t++)
   {
-    printf("main: creating thread %ld\n", t);
-    rc = pthread_create(threads + t, NULL, print_hello, (void *)t);
+    rc = pthread_create(&threads[t], NULL, hello, (void *)t);
     if (rc)
     {
       printf("ERROR; return code from pthread_create() is %d\n", rc);
