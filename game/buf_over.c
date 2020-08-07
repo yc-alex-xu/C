@@ -3,12 +3,17 @@
 /*
 gcc:
   gcc -fno-stack-protector buf_over.c 
-
+  如果不加这个flag,运行时会报：　*** stack smashing detected ***: <unknown> terminated
 dis: 
   (gdb) disassemble main
 
 attack:
-
+  $ ./a.out
+  pass2
+  $ ./a.out
+  pass1234
+  you win!
+  这说明：matached的位置不是贴着buf的
 */
 
 int main()
